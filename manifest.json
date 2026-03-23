@@ -1,0 +1,10 @@
+{
+  "id": "@citadel-app/rss",
+  "version": "1.0.0",
+  "name": "RSS Feeds",
+  "description": "Read RSS feeds alongside your notes.",
+  "author": "Citadel",
+  "main": "dist/main.js",
+  "renderer": "dist/renderer.js",
+  "enabled": true
+}

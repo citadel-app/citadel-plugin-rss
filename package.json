@@ -1,0 +1,42 @@
+{
+  "name": "citadel-plugin-rss",
+  "version": "1.0.0",
+  "description": "RSS Feed Plugin for Citadel",
+  "author": "Citadel Team",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "rss-parser": "^3.13.0"
+  },
+  "peerDependencies": {
+    "@citadel-app/core": "*",
+    "@citadel-app/sdk": "*",
+    "@citadel-app/ui": "*",
+    "lucide-react": "*",
+    "react": "*",
+    "react-dom": "*"
+  },
+  "devDependencies": {
+    "@citadel-app/core": "latest",
+    "@citadel-app/sdk": "latest",
+    "@citadel-app/ui": "latest",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^25.5.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "better-sqlite3": "^12.8.0",
+    "lucide-react": "^0.453.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "uuid": "^13.0.0",
+    "vite": "^5.0.0"
+  }
+}
