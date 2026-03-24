@@ -37,6 +37,26 @@ export const RssModule: IModule = {
         ]
     },
 
+    settingsConfig: {
+        title: "RSS Feed Tracker",
+        fields: [
+            {
+                id: "refreshInterval",
+                label: "Background Refresh Interval",
+                description: "How often should Citadel poll external RSS endpoints in minutes.",
+                type: "number",
+                defaultValue: 15
+            },
+            {
+                id: "maxItemsPerFeed",
+                label: "Max Saved Items per Feed",
+                description: "The rolling threshold above which older unread feed items are discarded.",
+                type: "number",
+                defaultValue: 200
+            }
+        ]
+    },
+
     providers: [
         { entry: { id: 'rss-provider', scope: 'global', priority: 100 }, component: RSSProvider },
         { entry: { id: 'youtube-provider', scope: 'global', priority: 101 }, component: YouTubeProvider },

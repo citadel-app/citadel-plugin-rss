@@ -1,7 +1,7 @@
 {
-  "name": "citadel-plugin-rss",
+  "name": "@citadel-app/rss",
   "version": "1.0.0",
-  "description": "RSS Feed Plugin for Citadel",
+  "description": "Native RSS feed reading and aggregation for Citadel.",
   "author": "Citadel Team",
   "license": "MIT",
   "scripts": {

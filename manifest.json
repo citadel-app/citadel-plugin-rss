@@ -1,10 +1,17 @@
 {
   "id": "@citadel-app/rss",
   "version": "1.0.0",
-  "name": "RSS Feeds",
-  "description": "Read RSS feeds alongside your notes.",
+  "name": "RSS Reader",
+  "description": "Native RSS feed reading and aggregation for Citadel.",
   "author": "Citadel",
   "main": "dist/main.js",
   "renderer": "dist/renderer.js",
-  "enabled": true
+  "enabled": true,
+  "ipcs": [
+    "getFeedItems",
+    "saveFeedItems",
+    "getFeedStatus",
+    "updateFeedStatus"
+  ],
+  "icon": "assets/icon.svg"
 }

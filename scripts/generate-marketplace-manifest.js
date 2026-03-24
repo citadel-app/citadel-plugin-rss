@@ -62,6 +62,33 @@ if (fs.existsSync(destPkgPath)) {
 
 // Ensure citadel object exists
 metaPkg.citadel = metaPkg.citadel || {};
+
+// Read Core Plugin Manifest
+const manifestPath = path.join(pluginDir, 'manifest.json');
+if (fs.existsSync(manifestPath)) {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (manifest.id) metaPkg.citadel.id = manifest.id;
+    if (manifest.name) metaPkg.citadel.title = manifest.name;
+    if (manifest.description && !metaPkg.description) metaPkg.description = manifest.description;
+    
+    // Copy the local SVG icon over to marketplace package mapping
+    if (manifest.icon) {
+        metaPkg.citadel.icon = manifest.icon;
+        
+        // Physically copy the icon file into the marketplace directory so it can be hosted on GitHub raw
+        const iconSrcPath = path.join(pluginDir, manifest.icon);
+        const iconDestPath = path.join(marketplaceDir, manifest.icon);
+        if (fs.existsSync(iconSrcPath)) {
+            const iconDestDir = path.dirname(iconDestPath);
+            if (!fs.existsSync(iconDestDir)) fs.mkdirSync(iconDestDir, { recursive: true });
+            fs.copyFileSync(iconSrcPath, iconDestPath);
+            console.log(`[Marketplace Generator] Copied plugin architecture icon: ${manifest.icon}`);
+        }
+    }
+}
+
+// Ensure citadel object exists
+metaPkg.citadel = metaPkg.citadel || {};
 metaPkg.citadel.capabilities = ipcs;
 metaPkg.citadel.permissions = permissions;
 
