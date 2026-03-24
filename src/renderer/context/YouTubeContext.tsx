@@ -423,7 +423,7 @@ export const YouTubeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const refreshFeeds = useCallback(async (isBackground = false) => {
         if (!isBackground) setIsLoading(true);
 
-        const batchSize = settings.feedRefreshBatchSize || 5;
+        const batchSize = settings?.plugins?.['@citadel-app/rss']?.feedRefreshBatchSize || 5;
         let pendingUpdates: any[] = [];
 
         try {
@@ -453,11 +453,11 @@ export const YouTubeProvider: React.FC<{ children: React.ReactNode }> = ({ child
         } finally {
             if (!isBackground) setIsLoading(false);
         }
-    }, [fetchFeed, applyUpdates, settings.feedRefreshBatchSize, toast]);
+    }, [fetchFeed, applyUpdates, settings?.plugins?.['@citadel-app/rss']?.feedRefreshBatchSize, toast]);
 
     // Background Refresh Effect
     useEffect(() => {
-        const interval = settings.youtubeRefreshInterval || 0;
+        const interval = settings?.plugins?.['@citadel-app/rss']?.youtubeRefreshInterval || 0;
         if (interval > 0 && initialized) {
             console.log(`[YouTubeContext] Starting background refresh interval: ${interval}ms`);
             const timer = setInterval(() => {
@@ -466,7 +466,7 @@ export const YouTubeProvider: React.FC<{ children: React.ReactNode }> = ({ child
             return () => clearInterval(timer);
         }
         return undefined;
-    }, [settings.youtubeRefreshInterval, initialized, refreshFeeds]);
+    }, [settings?.plugins?.['@citadel-app/rss']?.youtubeRefreshInterval, initialized, refreshFeeds]);
 
     const refreshFeed = useCallback(async (id: string) => {
         setIsLoading(true);

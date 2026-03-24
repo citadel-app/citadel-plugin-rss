@@ -21,6 +21,12 @@ import { RssModuleBindings } from './lib/module-bindings';
 export const RssModule: IModule = {
     id: '@citadel-app/rss',
     version: '1.0.0',
+    ipcs: [
+        'getFeedItems',
+        'saveFeedItems',
+        'getFeedStatus',
+        'updateFeedStatus'
+    ],
     permissions: {
         ipc: [
             'fs.readFile',
@@ -94,14 +100,45 @@ export const RssModule: IModule = {
     ],
 
     onRendererActivate: async (registrar: RendererRegistrar, _api: ScopedAPI) => {
-        // Settings Panel
-        const { RssSettings } = await import('./components/RssSettings');
-        registrar.registerSettingsPanel({
-            id: 'rss-settings',
-            title: 'Feeds',
-            icon: 'Rss',
-            component: RssSettings,
-            priority: 50
+        registrar.registerPluginSettingsConfig({
+            title: 'Feeds (RSS & YouTube)',
+            fields: [
+                {
+                    id: 'rssRefreshInterval',
+                    label: 'RSS Refresh Interval',
+                    type: 'select',
+                    defaultValue: 7200000,
+                    options: [
+                        { label: 'Manual Only', value: 0 },
+                        { label: 'Every Hour', value: 3600000 },
+                        { label: 'Every 2 Hours (Default)', value: 7200000 },
+                        { label: 'Every 6 Hours', value: 21600000 },
+                        { label: 'Every 12 Hours', value: 43200000 },
+                        { label: 'Every 24 Hours', value: 86400000 }
+                    ]
+                },
+                {
+                    id: 'youtubeRefreshInterval',
+                    label: 'YouTube Refresh Interval',
+                    type: 'select',
+                    defaultValue: 7200000,
+                    options: [
+                        { label: 'Manual Only', value: 0 },
+                        { label: 'Every Hour', value: 3600000 },
+                        { label: 'Every 2 Hours (Default)', value: 7200000 },
+                        { label: 'Every 6 Hours', value: 21600000 },
+                        { label: 'Every 12 Hours', value: 43200000 },
+                        { label: 'Every 24 Hours', value: 86400000 }
+                    ]
+                },
+                {
+                    id: 'feedRefreshBatchSize',
+                    label: 'Update Batch Size',
+                    description: 'Controls how many feeds are processed before the UI updates.',
+                    type: 'number',
+                    defaultValue: 5
+                }
+            ]
         });
     }
 };

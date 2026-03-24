@@ -60,6 +60,11 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [initialized, setInitialized] = useState(false);
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
     const [pinnedFolders, setPinnedFolders] = useState<string[]>([]);
+    const [rssSettings, setRssSettings] = useState({
+        refreshInterval: settings?.plugins?.['@citadel-app/rss']?.rssRefreshInterval || 0,
+        feedRefreshBatchSize: settings?.plugins?.['@citadel-app/rss']?.feedRefreshBatchSize || 5
+    });
+
 
     // Refs for stable access in callbacks
     const feedsRef = useRef(feeds);
@@ -143,6 +148,13 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
         load();
     }, [vaultPath]);
+
+    useEffect(() => {
+        setRssSettings({
+            refreshInterval: settings?.plugins?.['@citadel-app/rss']?.rssRefreshInterval || 0,
+            feedRefreshBatchSize: settings?.plugins?.['@citadel-app/rss']?.feedRefreshBatchSize || 5
+        })
+    }, [settings?.plugins?.['@citadel-app/rss']]);
 
     // Debounced Save effect
     useEffect(() => {
@@ -355,7 +367,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const refreshFeeds = useCallback(async (isBackground = false) => {
         if (!isBackground) setIsLoading(true);
 
-        const batchSize = settings.feedRefreshBatchSize || 5;
+        const batchSize = rssSettings?.feedRefreshBatchSize || 5;
         let pendingUpdates: any[] = [];
 
         try {
@@ -385,11 +397,11 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } finally {
             if (!isBackground) setIsLoading(false);
         }
-    }, [fetchFeed, applyUpdates, settings.feedRefreshBatchSize, toast]);
+    }, [fetchFeed, applyUpdates, rssSettings?.feedRefreshBatchSize, toast]);
 
     // Background Refresh Effect
     useEffect(() => {
-        const interval = settings.rssRefreshInterval || 0;
+        const interval = rssSettings?.refreshInterval || 0;
         if (interval > 0 && initialized) {
             console.log(`[RSSContext] Starting background refresh interval: ${interval}ms`);
             const timer = setInterval(() => {
@@ -398,7 +410,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             return () => clearInterval(timer);
         }
         return undefined;
-    }, [settings.rssRefreshInterval, initialized, refreshFeeds]);
+    }, [rssSettings?.refreshInterval, initialized, refreshFeeds]);
 
     const refreshFeed = useCallback(async (id: string, isAuto = false) => {
         const feed = feedsRef.current.find(f => f.id === id);
