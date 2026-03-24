@@ -1,21 +1,13 @@
 // Module-owned data managers
 export { createRSSDataManager, type RSSDataManager } from './lib/rss-data-manager';
-export { createYouTubeDataManager, type YouTubeDataManager } from './lib/youtube-data-manager';
 
 // Legacy exports (temporary, until everything is fully dynamic)
 export * from './context/RSSContext';
-export * from './context/YouTubeContext';
-export * from './context/YouTubePlayerContext';
 export * from './pages/RSSPage';
-export * from './pages/YouTubePage';
-export * from './components/youtube/FloatingYouTubePlayer';
 
 import { IModule, RendererRegistrar, ScopedAPI } from '@citadel-app/core';
 import React, { lazy } from 'react';
 import { RSSProvider } from './context/RSSContext';
-import { YouTubeProvider } from './context/YouTubeContext';
-import { YouTubePlayerProvider } from './context/YouTubePlayerContext';
-import { FloatingYouTubePlayer } from './components/youtube/FloatingYouTubePlayer';
 import { RssModuleBindings } from './lib/module-bindings';
 
 export const RssModule: IModule = {
@@ -58,18 +50,13 @@ export const RssModule: IModule = {
     },
 
     providers: [
-        { entry: { id: 'rss-provider', scope: 'global', priority: 100 }, component: RSSProvider },
-        { entry: { id: 'youtube-provider', scope: 'global', priority: 101 }, component: YouTubeProvider },
-        { entry: { id: 'youtube-player', scope: 'global', priority: 102 }, component: YouTubePlayerProvider }
+        { entry: { id: 'rss-provider', scope: 'global', priority: 100 }, component: RSSProvider }
     ],
 
-    globalComponents: [
-        { region: 'global-overlay', component: FloatingYouTubePlayer }
-    ],
+    globalComponents: [],
 
     routes: [
-        { path: '/rss', component: lazy(() => import('./pages/RSSPage').then(m => ({ default: m.RSSPage }))) },
-        { path: '/youtube', component: lazy(() => import('./pages/YouTubePage').then(m => ({ default: m.YouTubePage }))) }
+        { path: '/rss', component: lazy(() => import('./pages/RSSPage').then(m => ({ default: m.RSSPage }))) }
     ],
 
     navigationItems: [
@@ -81,15 +68,6 @@ export const RssModule: IModule = {
             activeClass: 'text-primary bg-primary/10',
             inactiveClass: 'text-orange-500 hover:bg-orange-500/10',
             priority: 10
-        },
-        {
-            id: 'nav-youtube',
-            label: 'YouTube Feed',
-            path: '/youtube',
-            icon: 'Youtube',
-            activeClass: 'text-primary bg-primary/10',
-            inactiveClass: 'text-red-500 hover:bg-red-500/10',
-            priority: 20
         }
     ],
 
@@ -121,25 +99,11 @@ export const RssModule: IModule = {
 
     onRendererActivate: async (registrar: RendererRegistrar, _api: ScopedAPI) => {
         registrar.registerPluginSettingsConfig({
-            title: 'Feeds (RSS & YouTube)',
+            title: 'Feeds (RSS)',
             fields: [
                 {
                     id: 'rssRefreshInterval',
                     label: 'RSS Refresh Interval',
-                    type: 'select',
-                    defaultValue: 7200000,
-                    options: [
-                        { label: 'Manual Only', value: 0 },
-                        { label: 'Every Hour', value: 3600000 },
-                        { label: 'Every 2 Hours (Default)', value: 7200000 },
-                        { label: 'Every 6 Hours', value: 21600000 },
-                        { label: 'Every 12 Hours', value: 43200000 },
-                        { label: 'Every 24 Hours', value: 86400000 }
-                    ]
-                },
-                {
-                    id: 'youtubeRefreshInterval',
-                    label: 'YouTube Refresh Interval',
                     type: 'select',
                     defaultValue: 7200000,
                     options: [

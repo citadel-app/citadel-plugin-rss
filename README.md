@@ -1,14 +1,13 @@
 # Citadel RSS Plugin
 
-The official RSS & YouTube Feed plugin for the Citadel application framework.
+The official RSS Feed plugin for the Citadel application framework.
 This plugin enables fetching, parsing, and persisting of RSS feeds directly within Citadel workspaces.
 
 ## Features
-- **RSS Parser**: Automatically fetches and extracts feed items using `rss-parser`.
-- **YouTube Feed**: Deep integration with YouTube atom feeds to automatically generate entry cards.
+- **RSS Parser**: Automatically fetches and extracts native `.xml` and `.json` feed items utilizing custom HTTP DOM proxy APIs.
 - **Background Synchronization**: Integrates heavily with `@citadel-app/core`'s data pipeline for automated background updates.
 - **Schema-Driven UI**: Injects a dynamically rendered `settingsConfig` directly into Citadel's native Plugin Manager to expose configuration controls like feed endpoints.
-- **Isolated Node API**: Employs an exact manifest of strictly-owned IPC hooks to ensure secure, namespaced interactions with the host's backend filesystem.
+- **Isolated Node API**: Employs an exact manifest of strictly-owned IPC hooks to ensure secure, namespaced interactions with the host's backend filesystem (using internal `feeds.db` SQLite models).
 
 ## Architecture
 Designed for `@citadel-app/core` v1.x+. 
@@ -16,7 +15,7 @@ This module leverages Citadel's decoupled plugin framework. It builds using Vite
 
 ## Installation / Usage
 This package is bundled as a runtime add-on. To install it into a Citadel workspace:
-1. Open Citadel Settings > Plugins
+1. Open Citadel Activity Bar > Extensions
 2. Search and click **Install** using the registry identifier `@citadel-app/rss`.
 
 ## Development
@@ -25,7 +24,7 @@ Since this plugin operates independently from the monolithic source, it is decou
 
 1. Install dependencies:
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 2. Build the plugin for distribution:
    ```bash

@@ -65,23 +65,6 @@ export function createRSSDataManager(storage: StorageProvider) {
                 await this.saveFeeds({ feeds, pinnedFolders });
             }
 
-            // MIGRATION: Segregate YouTube feeds (type='youtube' or folder='YouTube')
-            const youtubeFeeds = feeds.filter((f: any) => f.type === 'youtube' || f.folder === 'YouTube');
-            if (youtubeFeeds.length > 0) {
-                console.log(`[RSSDataManager] Found ${youtubeFeeds.length} YouTube feeds in RSS data, segregating...`);
-                const existingYouTube = (await storage.readJSON<any[]>('.codex/youtube-feeds.json')) || [];
-                const mergedYouTube = [...existingYouTube];
-                youtubeFeeds.forEach((yf: any) => {
-                    if (!mergedYouTube.some(existing => existing.url === yf.url)) {
-                        mergedYouTube.push(yf);
-                    }
-                });
-                await storage.writeJSON('.codex/youtube-feeds.json', mergedYouTube);
-                const remainingFeeds = feeds.filter((f: any) => f.type !== 'youtube' && f.folder !== 'YouTube');
-                await this.saveFeeds({ feeds: remainingFeeds, pinnedFolders });
-                return { feeds: remainingFeeds, pinnedFolders };
-            }
-
             return { feeds, pinnedFolders };
         },
 
