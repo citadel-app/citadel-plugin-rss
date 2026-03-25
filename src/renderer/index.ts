@@ -9,10 +9,11 @@ import { IModule, RendererRegistrar, ScopedAPI } from '@citadel-app/core';
 import React, { lazy } from 'react';
 import { RSSProvider } from './context/RSSContext';
 import { RssModuleBindings } from './lib/module-bindings';
+import pkg from '../../package.json';
 
 export const RssModule: IModule = {
     id: '@citadel-app/rss',
-    version: '1.0.0',
+    version: pkg.version,
     ipcs: [],
     permissions: {
         ipc: [
