@@ -52,7 +52,8 @@ export const useRSSStrict = (): RSSContextType => {
 
 
 export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { vaultPath, settings, toast, storage, feedDb, removeRelatedLinks } = useCoreServices();
+    const { vaultPath, settings, toast, storage, removeRelatedLinks, feedDb } = useCoreServices();
+    
     const rssData = useMemo(() => createRSSDataManager(storage), [storage]);
     const [feeds, setFeeds] = useState<Feed[]>([]);
     const [itemStatus, setItemStatus] = useState<Record<string, FeedItemStatus>>({});

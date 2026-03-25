@@ -13,19 +13,19 @@ import { RssModuleBindings } from './lib/module-bindings';
 export const RssModule: IModule = {
     id: '@citadel-app/rss',
     version: '1.0.0',
-    ipcs: [
-        'getFeedItems',
-        'saveFeedItems',
-        'getFeedStatus',
-        'updateFeedStatus'
-    ],
+    ipcs: [],
     permissions: {
         ipc: [
-            'fs.readFile',
-            'fs.writeFile',
-            'fs.exists',
-            'fs.createDirectory',
-            'app.updateSetting'
+            '@citadel-app/base:fs.readFile',
+            '@citadel-app/base:fs.writeFile',
+            '@citadel-app/base:fs.exists',
+            '@citadel-app/base:fs.createDirectory',
+            '@citadel-app/base:app.updateSetting',
+            '@citadel-app/base:net.fetch',
+            '@citadel-app/base:db.getFeedItems',
+            '@citadel-app/base:db.saveFeedItems',
+            '@citadel-app/base:db.getFeedStatus',
+            '@citadel-app/base:db.updateFeedStatus'
         ]
     },
 
@@ -99,6 +99,7 @@ export const RssModule: IModule = {
 
     onRendererActivate: async (registrar: RendererRegistrar, _api: ScopedAPI) => {
         registrar.registerPluginSettingsConfig({
+            id: '@citadel-app/rss',
             title: 'Feeds (RSS)',
             fields: [
                 {
