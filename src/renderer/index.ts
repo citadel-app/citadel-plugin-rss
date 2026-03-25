@@ -99,7 +99,6 @@ export const RssModule: IModule = {
 
     onRendererActivate: async (registrar: RendererRegistrar, _api: ScopedAPI) => {
         registrar.registerPluginSettingsConfig({
-            id: '@citadel-app/rss',
             title: 'Feeds (RSS)',
             fields: [
                 {

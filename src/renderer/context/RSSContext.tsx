@@ -52,7 +52,7 @@ export const useRSSStrict = (): RSSContextType => {
 
 
 export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { vaultPath, settings, toast, storage, removeRelatedLinks, feedDb } = useCoreServices();
+    const { vaultPath, settings, toast, storage, removeRelatedLinks, feedDb } = useCoreServices() as any;
     
     const rssData = useMemo(() => createRSSDataManager(storage), [storage]);
     const [feeds, setFeeds] = useState<Feed[]>([]);
@@ -109,7 +109,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
                     // Safety check: ensure unique IDs
                     const idSet = new Set<string>();
-                    feedsToSet = feedsToSet.map(f => {
+                    feedsToSet = feedsToSet.map((f: Feed) => {
                         if (idSet.has(f.id)) {
                             console.warn('[RSSContext] Detected duplicate ID on load, generating new one:', f.id);
                             return { ...f, id: uuidv4() };
@@ -174,9 +174,9 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 
     const togglePinnedFolder = useCallback((folder: string) => {
-        setPinnedFolders(prev =>
+        setPinnedFolders((prev: string[]) =>
             prev.includes(folder)
-                ? prev.filter(f => f !== folder)
+                ? prev.filter((f: string) => f !== folder)
                 : [...prev, folder]
         );
     }, []);
@@ -184,7 +184,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const fetchFeed = useCallback(async (url: string): Promise<Partial<Feed> & { items: FeedItem[] }> => {
         try {
             console.log(`[RSS] Fetching feed: ${url}`);
-            const res = await (window as any).api.net.fetch(url);
+            const res = await (window as any).api.module.invoke('@citadel-app/base', 'net.fetch', url);
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status} ${res.statusText}`);
@@ -241,7 +241,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLoading(true);
         try {
             // Check if already exists
-            if (feedsRef.current.some(f => f.url === url)) {
+            if (feedsRef.current.some((f: Feed) => f.url === url)) {
                 throw new Error('Feed already exists');
             }
 
@@ -263,7 +263,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 await feedDb.saveFeedItems(newFeed.id, newFeed.items);
             }
 
-            setFeeds(prev => [...prev, newFeed]);
+            setFeeds((prev: Feed[]) => [...prev, newFeed]);
             toast(`Added scroll: ${newFeed.title}`, { type: 'success' });
         } catch (e: any) {
             console.error('Error adding feed', e);
@@ -276,7 +276,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 error: e.message || 'Failed to fetch',
                 folder
             };
-            setFeeds(prev => [...prev, newFeed]);
+            setFeeds((prev: Feed[]) => [...prev, newFeed]);
             throw e;
         } finally {
             setIsLoading(false);
@@ -285,16 +285,16 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Listen for DataManager events (Entry Deletion)
     useEffect(() => {
-        const unsubscribe = storage.subscribe((event, data) => {
+        const unsubscribe = storage.subscribe((event: string, data: string) => {
             if (event === 'entry-deleted') {
                 const deletedEntryId = data;
                 console.log(`[RSSContext] Received entry-deleted: ${deletedEntryId}. Cleaning up links...`);
 
-                setFeeds(currentFeeds => {
+                setFeeds((currentFeeds: Feed[]) => {
                     return currentFeeds;
                 });
 
-                setItemStatus(currentStatus => {
+                setItemStatus((currentStatus: Record<string, FeedItemStatus>) => {
                     let changed = false;
                     const newStatus = { ...currentStatus };
 
@@ -314,21 +314,21 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, []);
 
     const removeFeed = useCallback(async (id: string) => {
-        const feed = feedsRef.current.find(f => f.id === id);
+        const feed = feedsRef.current.find((f: Feed) => f.id === id);
         if (feed) {
             // Safe Delete: Remove all links in Entries that point to items in this feed
-            const itemIds = feed.items.map(i => i.id);
+            const itemIds = feed.items.map((i: FeedItem) => i.id);
             if (itemIds.length > 0) {
                 await removeRelatedLinks(itemIds, 'rss-item');
             }
         }
-        setFeeds(prev => prev.filter(f => f.id !== id));
+        setFeeds((prev: Feed[]) => prev.filter((f: Feed) => f.id !== id));
     }, []);
 
 
     const applyUpdates = useCallback((updates: any[]) => {
-        setFeeds(currentFeeds => {
-            return currentFeeds.map(feed => {
+        setFeeds((currentFeeds: Feed[]) => {
+            return currentFeeds.map((feed: Feed) => {
                 const update = updates.find(u => u.id === feed.id);
                 if (!update) return feed;
 
@@ -373,7 +373,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         try {
             // Fetch all feed data first with concurrency limit
-            await pMap(feedsRef.current, async (feed) => {
+            await pMap(feedsRef.current, async (feed: Feed) => {
                 try {
                     const data = await fetchFeed(feed.url);
                     pendingUpdates.push({ id: feed.id, data, error: undefined });
@@ -414,7 +414,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, [rssSettings?.refreshInterval, initialized, refreshFeeds]);
 
     const refreshFeed = useCallback(async (id: string, isAuto = false) => {
-        const feed = feedsRef.current.find(f => f.id === id);
+        const feed = feedsRef.current.find((f: Feed) => f.id === id);
         if (!feed) return;
 
         try {
@@ -424,7 +424,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 await feedDb.saveFeedItems(feed.id, data.items);
             }
 
-            setFeeds(prev => prev.map(f => {
+            setFeeds((prev: Feed[]) => prev.map((f: Feed) => {
                 if (f.id !== id) return f;
                 return {
                     ...f,
@@ -435,7 +435,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 };
             }));
         } catch (e: any) {
-            setFeeds(prev => prev.map(f => {
+            setFeeds((prev: Feed[]) => prev.map((f: Feed) => {
                 if (f.id !== id) return f;
                 return { ...f, error: e.message };
             }));
@@ -446,7 +446,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updateFeed = useCallback(async (id: string, updates: Partial<Feed>) => {
         // If URL is changing, fetch from new URL
         if (updates.url) {
-            const feed = feedsRef.current.find(f => f.id === id);
+            const feed = feedsRef.current.find((f: Feed) => f.id === id);
             // Only if it's different
             if (feed && feed.url !== updates.url) {
                 try {
@@ -456,7 +456,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                         await feedDb.saveFeedItems(id, data.items);
                     }
 
-                    setFeeds(prev => prev.map(f => {
+                    setFeeds((prev: Feed[]) => prev.map((f: Feed) => {
                         if (f.id !== id) return f;
                         return {
                             ...f,
@@ -470,7 +470,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     }));
                     return;
                 } catch (e: any) {
-                    setFeeds(prev => prev.map(f => {
+                    setFeeds((prev: Feed[]) => prev.map((f: Feed) => {
                         if (f.id !== id) return f;
                         return {
                             ...f,
@@ -483,18 +483,19 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
         }
 
-        setFeeds(prev => prev.map(feed => {
+        setFeeds((prev: Feed[]) => prev.map((feed: Feed) => {
             if (feed.id !== id) return feed;
             return { ...feed, ...updates };
         }));
     }, [fetchFeed]);
 
     const markAsRead = useCallback((_feedId: string, itemId: string) => {
-        setItemStatus(prev => {
+        setItemStatus((prev: Record<string, FeedItemStatus>) => {
+            const current = prev[itemId] || { relatedEntries: [] };
             const nextStatus = {
                 ...prev,
                 [itemId]: {
-                    ...(prev[itemId] || { relatedEntries: [] }),
+                    ...current,
                     read: true
                 }
             };
@@ -579,9 +580,9 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             scan(outlines); // Start with body > outline
 
-            setFeeds(prev => [...prev, ...newFeeds]);
+            setFeeds((prev: Feed[]) => [...prev, ...newFeeds]);
 
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to parse OPML', e);
         } finally {
             setIsLoading(false);
@@ -595,7 +596,7 @@ export const RSSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const lowSearch = query.toLowerCase();
             const results: any[] = [];
             for (const feed of feedsRef.current) {
-                const matches = feed.items.filter(item => item.title.toLowerCase().includes(lowSearch));
+                const matches = feed.items.filter((item: FeedItem) => item.title.toLowerCase().includes(lowSearch));
                 for (const item of matches) {
                     results.push({
                         id: item.id,
