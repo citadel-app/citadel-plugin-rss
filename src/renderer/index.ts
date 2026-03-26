@@ -12,7 +12,7 @@ import { RssModuleBindings } from './lib/module-bindings';
 import pkg from '../../package.json';
 
 export const RssModule: IModule = {
-    id: '@citadel-app/rss',
+    id: pkg.name,
     version: pkg.version,
     ipcs: [],
     permissions: {
