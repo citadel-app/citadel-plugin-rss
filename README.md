@@ -1,4 +1,4 @@
-# Citadel RSS Plugin
+# Citadel RSS Plugin ![Verified](https://img.shields.io/badge/Citadel-Verified-blue?logo=checkmarx&logoColor=white)
 
 The official RSS Feed plugin for the Citadel application framework.
 This plugin enables fetching, parsing, and persisting of RSS feeds directly within Citadel workspaces.
