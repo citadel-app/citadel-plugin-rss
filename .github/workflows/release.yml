@@ -71,10 +71,10 @@ jobs:
 
       - name: Notify Marketplace
         run: |
-          TITLE=$(node -p "require('./package.json').citadel.title")
-          DESCRIPTION=$(node -p "require('./package.json').description")
-          AUTHOR=$(node -p "require('./package.json').author")
-          REPO_URL=$(node -p "require('./package.json').repository.url")
+          TITLE=$(node -p "require('./package.json').citadel?.title || 'Plugin'")
+          DESCRIPTION=$(node -p "require('./package.json').description || ''")
+          AUTHOR=$(node -p "require('./package.json').author || ''")
+          REPO_URL=$(node -p "require('./package.json').repository?.url || ''")
           NAME=$(node -p "require('./package.json').name")
           VERSION="${{ steps.get_version.outputs.VERSION }}"
           BUNDLE_URL="https://github.com/citadel-app/citadel-plugin-rss/releases/download/v${VERSION}/citadel-plugin-rss.zip"
