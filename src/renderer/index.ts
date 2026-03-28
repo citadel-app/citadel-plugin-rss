@@ -106,12 +106,12 @@ export const RssModule: IModule = {
                     id: 'rssRefreshInterval',
                     label: 'RSS Refresh Interval',
                     type: 'select',
-                    defaultValue: 7200000,
+                    defaultValue: 21600000,
                     options: [
                         { label: 'Manual Only', value: 0 },
                         { label: 'Every Hour', value: 3600000 },
-                        { label: 'Every 2 Hours (Default)', value: 7200000 },
-                        { label: 'Every 6 Hours', value: 21600000 },
+                        { label: 'Every 2 Hours', value: 7200000 },
+                        { label: 'Every 6 Hours (Default)', value: 21600000 },
                         { label: 'Every 12 Hours', value: 43200000 },
                         { label: 'Every 24 Hours', value: 86400000 }
                     ]
