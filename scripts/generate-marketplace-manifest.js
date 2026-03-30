@@ -21,53 +21,23 @@ if (fs.existsSync(readmePath)) {
     console.warn('[Marketplace Generator] Warning: No README.md found in plugin repository.');
 }
 
-// 3. Extract IPC capabilities and permissions from typescript AST/Code
-const rendererIndex = path.join(pluginDir, 'src/renderer/index.ts');
-let ipcs = [];
-let permissions = [];
-
-if (fs.existsSync(rendererIndex)) {
-    const code = fs.readFileSync(rendererIndex, 'utf8');
-    
-    // Parse 'ipcs' block
-    const ipcsMatch = code.match(/ipcs:\s*\[([\s\S]*?)\]/);
-    if (ipcsMatch) {
-         ipcs = ipcsMatch[1].split(',')
-            .map(s => s.trim().replace(/['"]/g, ''))
-            .filter(Boolean);
-    }
-
-    // Parse 'permissions.ipc' block
-    const permsMatch = code.match(/ipc:\s*\[([\s\S]*?)\]/);
-    if (permsMatch) {
-        permissions = permsMatch[1].split(',')
-            .map(s => s.trim().replace(/['"]/g, ''))
-            .filter(Boolean);
-    }
-} else {
-    console.warn('[Marketplace Generator] Warning: src/renderer/index.ts not found. Cannot extract metadata.');
-}
-
-// 4. Update or construct marketplace package.json
+// 3. Prepare metadata (package.json is already the source of truth)
 const sourcePkgPath = path.join(pluginDir, 'package.json');
-const destPkgPath = path.join(marketplaceDir, 'package.json');
+const sourcePkg = JSON.parse(fs.readFileSync(sourcePkgPath, 'utf8'));
 
-// Get base metadata either from source pkg or dest pkg
-let metaPkg = {};
-if (fs.existsSync(destPkgPath)) {
-    metaPkg = JSON.parse(fs.readFileSync(destPkgPath, 'utf8'));
-} else if (fs.existsSync(sourcePkgPath)) {
-    metaPkg = JSON.parse(fs.readFileSync(sourcePkgPath, 'utf8'));
-}
-
-// Ensure citadel object exists
+const metaPkg = { ...sourcePkg };
 metaPkg.citadel = metaPkg.citadel || {};
-metaPkg.citadel.capabilities = ipcs;
-metaPkg.citadel.permissions = permissions;
+metaPkg.citadel.providesIpcs = metaPkg.citadel.providesIpcs || [];
+metaPkg.citadel.permissions = metaPkg.citadel.permissions || [];
+metaPkg.citadel.sidecars = metaPkg.citadel.sidecars || [];
+metaPkg.citadel.capabilities = Array.from(new Set([
+    ...(metaPkg.citadel.capabilities || []),
+    ...(metaPkg.citadel.providesIpcs || [])
+]));
 
 // Pull additional metadata from the plugin's package.json citadel property
-const sourcePkg = JSON.parse(fs.readFileSync(sourcePkgPath, 'utf8'));
 if (sourcePkg.citadel) {
+
     if (sourcePkg.citadel.title) metaPkg.citadel.title = sourcePkg.citadel.title;
     if (sourcePkg.citadel.icon) {
         metaPkg.citadel.icon = sourcePkg.citadel.icon;

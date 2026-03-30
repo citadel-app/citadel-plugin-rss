@@ -5,101 +5,62 @@ export { createRSSDataManager, type RSSDataManager } from './lib/rss-data-manage
 export * from './context/RSSContext';
 export * from './pages/RSSPage';
 
-import { IModule, RendererRegistrar, ScopedAPI } from '@citadel-app/core';
+import { definePlugin } from '@citadel-app/sdk';
 import React, { lazy } from 'react';
 import { RSSProvider } from './context/RSSContext';
 import { RssModuleBindings } from './lib/module-bindings';
 import pkg from '../../package.json';
 
-export const RssModule: IModule = {
+export const RssModule = definePlugin({
     id: pkg.name,
     version: pkg.version,
-    ipcs: [],
-    permissions: {
-        ipc: [
-            '@citadel-app/base:fs.readFile',
-            '@citadel-app/base:fs.writeFile',
-            '@citadel-app/base:fs.exists',
-            '@citadel-app/base:fs.createDirectory',
-            '@citadel-app/base:app.updateSetting',
-            '@citadel-app/base:net.fetch',
-            '@citadel-app/base:db.getFeedItems',
-            '@citadel-app/base:db.saveFeedItems',
-            '@citadel-app/base:db.getFeedStatus',
-            '@citadel-app/base:db.updateFeedStatus'
-        ]
-    },
 
-    settingsConfig: {
-        title: "RSS Feed Tracker",
-        fields: [
+    renderer: {
+        providers: [
+            { entry: { id: 'rss-provider', scope: 'global', priority: 100 }, component: RSSProvider }
+        ],
+
+        routes: [
+            { path: '/rss', component: lazy(() => import('./pages/RSSPage').then(m => ({ default: m.RSSPage }))) }
+        ],
+
+        navigation: [
             {
-                id: "refreshInterval",
-                label: "Background Refresh Interval",
-                description: "How often should Citadel poll external RSS endpoints in minutes.",
-                type: "number",
-                defaultValue: 15
-            },
+                id: 'nav-rss',
+                label: 'RSS Feeds',
+                path: '/rss',
+                icon: 'Rss',
+                activeClass: 'text-primary bg-primary/10',
+                inactiveClass: 'text-orange-500 hover:bg-orange-500/10',
+                priority: 10
+            }
+        ],
+
+        linkSearchProviders: [
             {
-                id: "maxItemsPerFeed",
-                label: "Max Saved Items per Feed",
-                description: "The rolling threshold above which older unread feed items are discarded.",
-                type: "number",
-                defaultValue: 200
+                id: 'rss-search',
+                label: 'RSS Feeds',
+                search: async (query: string) => {
+                    if (!RssModuleBindings.search) return [];
+                    return RssModuleBindings.search(query);
+                }
             }
-        ]
-    },
+        ],
 
-    providers: [
-        { entry: { id: 'rss-provider', scope: 'global', priority: 100 }, component: RSSProvider }
-    ],
-
-    globalComponents: [],
-
-    routes: [
-        { path: '/rss', component: lazy(() => import('./pages/RSSPage').then(m => ({ default: m.RSSPage }))) }
-    ],
-
-    navigationItems: [
-        {
-            id: 'nav-rss',
-            label: 'RSS Feeds',
-            path: '/rss',
-            icon: 'Rss',
-            activeClass: 'text-primary bg-primary/10',
-            inactiveClass: 'text-orange-500 hover:bg-orange-500/10',
-            priority: 10
-        }
-    ],
-
-    linkSearchProviders: [
-        {
-            id: 'rss-search',
-            label: 'RSS Feeds',
-            search: async (query: string) => {
-                if (!RssModuleBindings.search) return [];
-                return RssModuleBindings.search(query);
-            }
-        }
-    ],
-
-    crossLinkHandlers: [
-        {
-            id: 'rss-cross-link',
-            handleLinkCompleted: async (targets, sourceLink, extraData) => {
-                // If a user links "from" an RSS Feed Item "to" an Entry
-                if (sourceLink.type === 'rss-item' && extraData?.feedId && RssModuleBindings.linkResolver) {
-                    // For each target entry that was linked, bind the item back to the entry
-                    for (const target of targets) {
-                         RssModuleBindings.linkResolver(extraData.feedId, sourceLink.id, target);
+        crossLinkHandlers: [
+            {
+                id: 'rss-cross-link',
+                handleLinkCompleted: async (targets: any, sourceLink: { type: string; id: string; }, extraData: { feedId: string; }) => {
+                    if (sourceLink.type === 'rss-item' && extraData?.feedId && RssModuleBindings.linkResolver) {
+                        for (const target of targets) {
+                             RssModuleBindings.linkResolver(extraData.feedId, sourceLink.id, target);
+                        }
                     }
                 }
             }
-        }
-    ],
+        ],
 
-    onRendererActivate: async (registrar: RendererRegistrar, _api: ScopedAPI) => {
-        registrar.registerPluginSettingsConfig({
+        settingsConfig: {
             title: 'Feeds (RSS)',
             fields: [
                 {
@@ -124,6 +85,7 @@ export const RssModule: IModule = {
                     defaultValue: 5
                 }
             ]
-        });
+        }
     }
-};
+});
+
