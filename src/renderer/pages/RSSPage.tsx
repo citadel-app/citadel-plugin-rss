@@ -5,7 +5,7 @@ import { FeedList } from '../components/rss/FeedList';
 import { FeedView } from '../components/rss/FeedView';
 import { AddFeedDialog } from '../components/rss/AddFeedDialog';
 
-import { Panel, Group, Separator } from 'react-resizable-panels';
+import { Panel, PanelGroup as Group, PanelResizeHandle as Separator } from 'react-resizable-panels';
 
 
 export const RSSPage = () => {
